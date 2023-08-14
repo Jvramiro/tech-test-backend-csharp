@@ -8,6 +8,7 @@
             this.Nome = Nome;
             this.Preco = Preco;
             this.Quantidade = Quatidade;
+            this.CriadoEm = DateTime.Now;
         }
 
     }

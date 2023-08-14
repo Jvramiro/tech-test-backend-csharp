@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TestJrAPI.DTO.Produtos;
+using TestJrAPI.Models;
 
 namespace TestJrAPI.Controllers {
     [Route("/[controller]")]
@@ -6,8 +8,25 @@ namespace TestJrAPI.Controllers {
     public class ProdutosController : ControllerBase {
 
         [HttpPost]
-        public async Task<IActionResult> Create(){
-            return Ok();
+        public async Task<IActionResult> Create([FromBody] ProdutoRequest request){
+
+            if (!ModelState.IsValid) {
+                return BadRequest("Data inválida");
+            }
+
+            if(request.Preco < 0) {
+                return BadRequest("O valor de Preço não deve ser negativo");
+            }
+
+            Produto produto = new Produto(
+                request.Nome,
+                request.Preco,
+                request.Quatidade
+            );
+
+            var response = new ProdutoResponse(produto.Id, produto.Nome, produto.Preco, produto.Quantidade);
+
+            return Created($"Produto {response.Nome} criado com sucesso", response);
         }
 
         [HttpGet]
@@ -17,14 +36,22 @@ namespace TestJrAPI.Controllers {
                 return BadRequest("The number of rows cannot exceed 10");
             }
 
-            return Ok();
+            List<Produto> produtos = new List<Produto>();
+
+            var response = produtos.Select(p => new ProdutoResponse(p.Id, p.Nome, p.Preco, p.Quantidade));
+
+            return Ok(response);
 
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id) {
 
-            return Ok();
+            Produto produto = new Produto("Teste", 10, 10);
+
+            var response = new ProdutoResponse(produto.Id, produto.Nome, produto.Preco, produto.Quantidade);
+
+            return Ok(produto);
 
         }
 
@@ -38,7 +65,11 @@ namespace TestJrAPI.Controllers {
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id) {
 
-            return Ok();
+            Produto produto = new Produto("Teste", 10, 10);
+
+            var response = new ProdutoResponse(produto.Id, produto.Nome, produto.Preco, produto.Quantidade);
+
+            return Ok($"Produto {response.Nome} criado com sucesso");
 
         }
 
