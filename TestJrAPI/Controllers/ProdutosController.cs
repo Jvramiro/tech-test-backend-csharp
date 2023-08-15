@@ -74,9 +74,20 @@ namespace TestJrAPI.Controllers {
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromRoute] Guid id) {
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] ProdutoRequest request) {
 
-            return Ok();
+            var produto = await sqlContext.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+
+            if (produto == null) {
+                return NotFound("Id não encontrado");
+            }
+
+            produto.Update(request.Nome, request.Preco, request.Quatidade, request.Ativo ?? false);
+
+            sqlContext.Produtos.Update(produto);
+            await sqlContext.SaveChangesAsync();
+
+            return Ok($"Produto {produto.Nome} editado com sucesso");
 
         }
 

@@ -12,5 +12,12 @@
             this.CriadoEm = DateTime.Now;
         }
 
+        public void Update(string Nome, decimal Preco, int Quantidade, bool Ativo = true) {
+            this.Nome = Nome;
+            this.Preco = Preco;
+            this.Quantidade = Quantidade;
+            this.Ativo = Ativo;
+        }
+
     }
 }
