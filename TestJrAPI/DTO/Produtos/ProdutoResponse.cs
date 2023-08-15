@@ -1,3 +1,3 @@
 ﻿namespace TestJrAPI.DTO.Produtos {
-    public record ProdutoResponse(Guid Id, string Nome, decimal Preco, int Quantidade);
+    public record ProdutoResponse(Guid Id, string Nome, decimal Preco, int Quantidade, decimal ValorTotal);
 }

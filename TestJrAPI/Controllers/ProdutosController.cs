@@ -34,7 +34,7 @@ namespace TestJrAPI.Controllers {
             await sqlContext.Produtos.AddAsync(produto);
             await sqlContext.SaveChangesAsync();
 
-            var response = new ProdutoResponse(produto.Id, produto.Nome, produto.Preco, produto.Quantidade);
+            var response = new ProdutoResponse(produto.Id, produto.Nome, produto.Preco, produto.Quantidade, produto.ValorTotal);
 
             return Created($"Produto {response.Nome} criado com sucesso", response);
         }
@@ -52,7 +52,7 @@ namespace TestJrAPI.Controllers {
                 return NotFound("Nenhum Produto válido encontrado");
             }
 
-            var response = produtos.Select(p => new ProdutoResponse(p.Id, p.Nome, p.Preco, p.Quantidade));
+            var response = produtos.Select(p => new ProdutoResponse(p.Id, p.Nome, p.Preco, p.Quantidade, p.ValorTotal));
 
             return Ok(response);
 
@@ -67,7 +67,7 @@ namespace TestJrAPI.Controllers {
                 return NotFound("Id não encontrado");
             }
 
-            var response = new ProdutoResponse(produto.Id, produto.Nome, produto.Preco, produto.Quantidade);
+            var response = new ProdutoResponse(produto.Id, produto.Nome, produto.Preco, produto.Quantidade, produto.ValorTotal);
 
             return Ok(produto);
 
