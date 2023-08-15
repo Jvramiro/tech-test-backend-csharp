@@ -5,5 +5,6 @@
         public DateTime EditadoEm { get; set; }
         public Guid CriadoPor { get; set; }
         public Guid EditadoPor { get; set; }
+        public bool Ativo { get; set; }
     }
 }

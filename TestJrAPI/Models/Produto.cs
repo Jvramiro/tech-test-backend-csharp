@@ -4,10 +4,11 @@
         public decimal Preco { get; private set; }
         public int Quantidade { get; private set; }
 
-        public Produto(string Nome, decimal Preco, int Quatidade) {
+        public Produto(string Nome, decimal Preco, int Quantidade) {
             this.Nome = Nome;
             this.Preco = Preco;
-            this.Quantidade = Quatidade;
+            this.Quantidade = Quantidade;
+            this.Ativo = true;
             this.CriadoEm = DateTime.Now;
         }
 
