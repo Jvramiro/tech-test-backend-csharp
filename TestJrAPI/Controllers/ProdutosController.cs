@@ -3,15 +3,16 @@ using Microsoft.EntityFrameworkCore;
 using TestJrAPI.Data;
 using TestJrAPI.DTO.Produtos;
 using TestJrAPI.Models;
+using TestJrAPI.Services;
 
 namespace TestJrAPI.Controllers {
     [Route("/[controller]")]
     [ApiController]
     public class ProdutosController : ControllerBase {
 
-        private readonly SqlContext sqlContext;
-        public ProdutosController(SqlContext sqlContext) {
-            this.sqlContext = sqlContext;
+        private readonly DatabaseService databaseService;
+        public ProdutosController(DatabaseService databaseService) {
+            this.databaseService = databaseService;
         }
 
         [HttpPost]
@@ -31,8 +32,7 @@ namespace TestJrAPI.Controllers {
                 request.Quatidade
             );
 
-            await sqlContext.Produtos.AddAsync(produto);
-            await sqlContext.SaveChangesAsync();
+            databaseService.CreateProduto(produto);
 
             var response = new ProdutoResponse(produto.Id, produto.Nome, produto.Preco, produto.Quantidade, produto.ValorTotal);
 
@@ -46,7 +46,7 @@ namespace TestJrAPI.Controllers {
                 return BadRequest("The number of rows cannot exceed 10");
             }
 
-            var produtos = await sqlContext.Produtos.AsNoTracking().Skip((page - 1) * rows).Take(rows).ToListAsync();
+            var produtos = await databaseService.GetAllProduto(page, rows);
 
             if(produtos == null) {
                 return NotFound("Nenhum Produto válido encontrado");
@@ -61,7 +61,7 @@ namespace TestJrAPI.Controllers {
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id) {
 
-            var produto = await sqlContext.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+            var produto = await databaseService.GetById(id);
 
             if(produto == null) {
                 return NotFound("Id não encontrado");
@@ -76,7 +76,7 @@ namespace TestJrAPI.Controllers {
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] ProdutoRequest request) {
 
-            var produto = await sqlContext.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+            var produto = await databaseService.GetById(id);
 
             if (produto == null) {
                 return NotFound("Id não encontrado");
@@ -84,8 +84,7 @@ namespace TestJrAPI.Controllers {
 
             produto.Update(request.Nome, request.Preco, request.Quatidade, request.Ativo ?? false);
 
-            sqlContext.Produtos.Update(produto);
-            await sqlContext.SaveChangesAsync();
+            databaseService.UpdateProduto(produto);
 
             return Ok($"Produto {produto.Nome} editado com sucesso");
 
@@ -94,14 +93,13 @@ namespace TestJrAPI.Controllers {
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id) {
 
-            var produto = await sqlContext.Produtos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+            var produto = await databaseService.GetById(id);
 
             if (produto == null) {
                 return NotFound("Id não encontrado");
             }
 
-            sqlContext.Produtos.Remove(produto);
-            await sqlContext.SaveChangesAsync();
+            databaseService.DeleteProduto(produto);
 
             return Ok($"Produto {produto.Nome} deletado com sucesso");
 
