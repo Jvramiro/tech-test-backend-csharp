@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TestJrAPI.Data;
 using TestJrAPI.DTO.Produtos;
+using TestJrAPI.Enums;
 using TestJrAPI.Models;
 using TestJrAPI.Services;
 
@@ -16,7 +17,7 @@ namespace TestJrAPI.Controllers {
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ProdutoRequest request){
+        public async Task<IActionResult> Create([FromBody] ProdutoRequest request, DatabaseSelection databaseSelection = 0){
 
             if (!ModelState.IsValid) {
                 return BadRequest("Data inválida");
@@ -32,7 +33,7 @@ namespace TestJrAPI.Controllers {
                 request.Quatidade
             );
 
-            databaseService.CreateProduto(produto);
+            databaseService.CreateProduto(produto, databaseSelection);
 
             var response = new ProdutoResponse(produto.Id, produto.Nome, produto.Preco, produto.Quantidade, produto.ValorTotal);
 
@@ -40,13 +41,13 @@ namespace TestJrAPI.Controllers {
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll(int page = 1, int rows = 10) {
+        public async Task<IActionResult> GetAll(int page = 1, int rows = 10, DatabaseSelection databaseSelection = 0) {
 
             if(rows > 30) {
                 return BadRequest("The number of rows cannot exceed 10");
             }
 
-            var produtos = await databaseService.GetAllProduto(page, rows);
+            var produtos = await databaseService.GetAllProduto(databaseSelection, page, rows);
 
             if(produtos == null) {
                 return NotFound("Nenhum Produto válido encontrado");
@@ -59,9 +60,9 @@ namespace TestJrAPI.Controllers {
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById([FromRoute] Guid id) {
+        public async Task<IActionResult> GetById([FromRoute] Guid id, DatabaseSelection databaseSelection = 0) {
 
-            var produto = await databaseService.GetById(id);
+            var produto = await databaseService.GetById(id, databaseSelection);
 
             if(produto == null) {
                 return NotFound("Id não encontrado");
@@ -74,9 +75,9 @@ namespace TestJrAPI.Controllers {
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] ProdutoRequest request) {
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] ProdutoRequest request, DatabaseSelection databaseSelection = 0) {
 
-            var produto = await databaseService.GetById(id);
+            var produto = await databaseService.GetById(id, databaseSelection);
 
             if (produto == null) {
                 return NotFound("Id não encontrado");
@@ -84,22 +85,22 @@ namespace TestJrAPI.Controllers {
 
             produto.Update(request.Nome, request.Preco, request.Quatidade, request.Ativo ?? false);
 
-            databaseService.UpdateProduto(produto);
+            databaseService.UpdateProduto(produto, databaseSelection);
 
             return Ok($"Produto {produto.Nome} editado com sucesso");
 
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] Guid id) {
+        public async Task<IActionResult> Delete([FromRoute] Guid id, DatabaseSelection databaseSelection = 0) {
 
-            var produto = await databaseService.GetById(id);
+            var produto = await databaseService.GetById(id, databaseSelection);
 
             if (produto == null) {
                 return NotFound("Id não encontrado");
             }
 
-            databaseService.DeleteProduto(produto);
+            databaseService.DeleteProduto(produto, databaseSelection);
 
             return Ok($"Produto {produto.Nome} deletado com sucesso");
 

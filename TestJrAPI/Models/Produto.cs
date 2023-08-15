@@ -1,6 +1,12 @@
-﻿namespace TestJrAPI.Models {
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TestJrAPI.Models {
     public class Produto : Entity {
+        [Required]
+        [StringLength(50)]
         public string Nome { get; private set; }
+        [Required]
+        [Range(0, double.MaxValue)]
         public decimal Preco { get; private set; }
         public int Quantidade { get; private set; }
         public decimal ValorTotal { get; private set; }

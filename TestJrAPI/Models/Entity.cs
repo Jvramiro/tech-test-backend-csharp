@@ -1,5 +1,8 @@
-﻿namespace TestJrAPI.Models {
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TestJrAPI.Models {
     public class Entity {
+        [Key]
         public Guid Id { get; set; }
         public DateTime CriadoEm { get; set; }
         public DateTime EditadoEm { get; set; }

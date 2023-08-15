@@ -4,6 +4,11 @@ using TestJrAPI.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSqlServer<SqlContext>(builder.Configuration["ConnectionStrings:SQLServer"]);
+builder.Services.Configure<MongoDBContext>(builder.Configuration);
+builder.Services.AddScoped<MongoDBContext>();
+
+builder.Services.Configure<FileContext>(builder.Configuration);
+builder.Services.AddScoped<FileContext>();
 
 builder.Services.AddScoped<DatabaseService>();
 
