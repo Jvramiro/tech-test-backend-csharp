@@ -62,6 +62,12 @@ namespace TestJrAPI.Data {
 
         private async Task WriteAsync<T>(List<T> items) {
             var json = JsonSerializer.Serialize(items);
+
+            var directory = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) {
+                Directory.CreateDirectory(directory);
+            }
+
             await File.WriteAllTextAsync(filePath, json);
         }
     }
