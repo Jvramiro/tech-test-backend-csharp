@@ -1,4 +1,5 @@
 using TestJrAPI.Data;
+using TestJrAPI.Interfaces;
 using TestJrAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +11,7 @@ builder.Services.AddScoped<MongoDBContext>();
 builder.Services.Configure<FileContext>(builder.Configuration);
 builder.Services.AddScoped<FileContext>();
 
-builder.Services.AddScoped<DatabaseService>();
+builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

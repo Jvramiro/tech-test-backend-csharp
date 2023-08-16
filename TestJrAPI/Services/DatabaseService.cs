@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using TestJrAPI.Data;
 using TestJrAPI.Enums;
+using TestJrAPI.Interfaces;
 using TestJrAPI.Models;
 
 namespace TestJrAPI.Services {
-    public class DatabaseService {
+    public class DatabaseService : IDatabaseService {
 
         private readonly SqlContext sqlContext;
         private readonly MongoDBContext mongoDBContext;

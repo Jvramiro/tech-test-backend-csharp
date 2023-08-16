@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TestJrAPI.Data;
 using TestJrAPI.DTO.Produtos;
 using TestJrAPI.Enums;
+using TestJrAPI.Interfaces;
 using TestJrAPI.Models;
 using TestJrAPI.Services;
 
@@ -11,8 +12,8 @@ namespace TestJrAPI.Controllers {
     [ApiController]
     public class ProdutosController : ControllerBase {
 
-        private readonly DatabaseService databaseService;
-        public ProdutosController(DatabaseService databaseService) {
+        private readonly IDatabaseService databaseService;
+        public ProdutosController(IDatabaseService databaseService) {
             this.databaseService = databaseService;
         }
 
@@ -27,10 +28,14 @@ namespace TestJrAPI.Controllers {
                 return BadRequest("O valor de Preço não deve ser negativo");
             }
 
+            if(request.Quantidade < 0) {
+                return BadRequest("O valor de Quantidade não deve ser negativo");
+            }
+
             Produto produto = new Produto(
                 request.Nome,
                 request.Preco,
-                request.Quatidade
+                request.Quantidade
             );
 
             databaseService.CreateProduto(produto, databaseSelection);
@@ -83,7 +88,15 @@ namespace TestJrAPI.Controllers {
                 return NotFound("Id não encontrado");
             }
 
-            produto.Update(request.Nome, request.Preco, request.Quatidade, request.Ativo ?? false);
+            if (request.Preco < 0) {
+                return BadRequest("O valor de Preço não deve ser negativo");
+            }
+
+            if (request.Quantidade < 0) {
+                return BadRequest("O valor de Quantidade não deve ser negativo");
+            }
+
+            produto.Update(request.Nome, request.Preco, request.Quantidade, request.Ativo ?? false);
 
             databaseService.UpdateProduto(produto, databaseSelection);
 
