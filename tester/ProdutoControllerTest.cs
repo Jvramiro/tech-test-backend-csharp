@@ -16,11 +16,13 @@ namespace tester {
 
         private Mock<IDatabaseService> mockDatabaseService;
         private ProdutosController produtoController;
+        private DatabaseSelection databaseSelection;
 
         [TestInitialize]
         public void Init() {
             mockDatabaseService = new Mock<IDatabaseService>();
             produtoController = new ProdutosController(mockDatabaseService.Object);
+            databaseSelection = DatabaseSelection.SqlServer;
         }
 
         #region Create Produto
@@ -35,7 +37,7 @@ namespace tester {
             mockDatabaseService
                 .Setup(svc => svc.CreateProduto(It.IsAny<Produto>(), It.IsAny<DatabaseSelection>()))
                 .Verifiable();
-            var result = await produtoController.Create(request, DatabaseSelection.SqlServer);
+            var result = await produtoController.Create(request, databaseSelection);
             var response = ((CreatedResult)result).Value as ProdutoResponse;
 
             // Assert
@@ -46,7 +48,7 @@ namespace tester {
 
             mockDatabaseService.Verify(v =>
                 v.CreateProduto(It.Is<Produto>(p => p.Nome == request.Nome),
-                DatabaseSelection.SqlServer), 
+                databaseSelection), 
                 Times.Once
             );
         }
@@ -61,7 +63,7 @@ namespace tester {
             mockDatabaseService
                 .Setup(svc => svc.CreateProduto(It.IsAny<Produto>(), It.IsAny<DatabaseSelection>()))
                 .Verifiable();
-            var result = await produtoController.Create(request, DatabaseSelection.SqlServer);
+            var result = await produtoController.Create(request, databaseSelection);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
@@ -78,7 +80,7 @@ namespace tester {
             mockDatabaseService
                 .Setup(svc => svc.CreateProduto(It.IsAny<Produto>(), It.IsAny<DatabaseSelection>()))
                 .Verifiable();
-            var result = await produtoController.Create(request, DatabaseSelection.SqlServer);
+            var result = await produtoController.Create(request, databaseSelection);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
@@ -95,11 +97,11 @@ namespace tester {
             var expectedProduto = new Produto("Mouse", 45, 20);
             expectedProduto.Id = existingId;
 
-            mockDatabaseService.Setup(svc => svc.GetById(existingId, DatabaseSelection.SqlServer))
+            mockDatabaseService.Setup(svc => svc.GetById(existingId, databaseSelection))
                               .ReturnsAsync(expectedProduto);
 
             // Act
-            var result = await produtoController.GetById(existingId, DatabaseSelection.SqlServer);
+            var result = await produtoController.GetById(existingId, databaseSelection);
             var objectResult = (OkObjectResult)result;
             var response = objectResult.Value as Produto;
 
@@ -116,11 +118,11 @@ namespace tester {
             // Arrange
             var nonExistingId = Guid.NewGuid();
 
-            mockDatabaseService.Setup(svc => svc.GetById(nonExistingId, DatabaseSelection.SqlServer))
+            mockDatabaseService.Setup(svc => svc.GetById(nonExistingId, databaseSelection))
                               .ReturnsAsync((Produto)null);
 
             // Act
-            var result = await produtoController.GetById(nonExistingId, DatabaseSelection.SqlServer);
+            var result = await produtoController.GetById(nonExistingId, databaseSelection);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
@@ -133,7 +135,7 @@ namespace tester {
 
             // Act
             try {
-                var result = await produtoController.GetById(Guid.Parse(invalidId), DatabaseSelection.SqlServer);
+                var result = await produtoController.GetById(Guid.Parse(invalidId), databaseSelection);
                 Assert.Fail("Expected FormatException");
             }
             catch (Exception exception) {
@@ -155,11 +157,11 @@ namespace tester {
                 p.Id, p.Nome, p.Preco, p.Quantidade, p.ValorTotal)
             ).ToList();
 
-            mockDatabaseService.Setup(svc => svc.GetAllProduto(DatabaseSelection.SqlServer, 1, 10))
+            mockDatabaseService.Setup(svc => svc.GetAllProduto(databaseSelection, 1, 10))
                       .ReturnsAsync(mockProdutos);
 
             // Act
-            var result = await produtoController.GetAll(1, 10, DatabaseSelection.SqlServer);
+            var result = await produtoController.GetAll(1, 10, databaseSelection);
 
             var objectResult = (OkObjectResult)result;
             var response = objectResult.Value as IEnumerable<ProdutoResponse>;
@@ -184,7 +186,7 @@ namespace tester {
             var mockProdutos = new List<Produto> { expectedProduto_01, expectedProduto_02 };
 
             // Act
-            var result = await produtoController.GetAll(1, exceededRowsNumber, DatabaseSelection.SqlServer);
+            var result = await produtoController.GetAll(1, exceededRowsNumber, databaseSelection);
 
 
             // Assert
@@ -203,11 +205,11 @@ namespace tester {
             var existingProduto = new Produto("Mose", 20, 5);
             existingProduto.Id = existingId;
 
-            mockDatabaseService.Setup(svc => svc.GetById(existingId, DatabaseSelection.SqlServer))
+            mockDatabaseService.Setup(svc => svc.GetById(existingId, databaseSelection))
                               .ReturnsAsync(existingProduto);
 
             // Act
-            var result = await produtoController.Update(existingId, updatedRequest, DatabaseSelection.SqlServer);
+            var result = await produtoController.Update(existingId, updatedRequest, databaseSelection);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(OkObjectResult));
@@ -219,11 +221,11 @@ namespace tester {
             var nonExistingId = Guid.NewGuid();
             var updatedRequest = new ProdutoRequest("Mouse", 30, 10);
 
-            mockDatabaseService.Setup(svc => svc.GetById(nonExistingId, DatabaseSelection.SqlServer))
+            mockDatabaseService.Setup(svc => svc.GetById(nonExistingId, databaseSelection))
                               .ReturnsAsync((Produto)null);
 
             // Act
-            var result = await produtoController.Update(nonExistingId, updatedRequest, DatabaseSelection.SqlServer);
+            var result = await produtoController.Update(nonExistingId, updatedRequest, databaseSelection);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
@@ -237,11 +239,11 @@ namespace tester {
             var existingProduto = new Produto("Mouse", 20, 5);
             existingProduto.Id = existingId;
 
-            mockDatabaseService.Setup(svc => svc.GetById(existingId, DatabaseSelection.SqlServer))
+            mockDatabaseService.Setup(svc => svc.GetById(existingId, databaseSelection))
                               .ReturnsAsync(existingProduto);
 
             // Act
-            var result = await produtoController.Update(existingId, invalidRequest, DatabaseSelection.SqlServer);
+            var result = await produtoController.Update(existingId, invalidRequest, databaseSelection);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
@@ -255,7 +257,7 @@ namespace tester {
 
             // Act
             try {
-                var result = await produtoController.Update(Guid.Parse(invalidId), updatedRequest, DatabaseSelection.SqlServer);
+                var result = await produtoController.Update(Guid.Parse(invalidId), updatedRequest, databaseSelection);
                 Assert.Fail("Expected FormatException");
             }
             catch (Exception exception) {
@@ -274,11 +276,11 @@ namespace tester {
             var existingProduto = new Produto("Mouse", 50, 3);
             existingProduto.Id = existingId;
 
-            mockDatabaseService.Setup(svc => svc.GetById(existingId, DatabaseSelection.SqlServer))
+            mockDatabaseService.Setup(svc => svc.GetById(existingId, databaseSelection))
                               .ReturnsAsync(existingProduto);
 
             // Act
-            var result = await produtoController.Delete(existingId, DatabaseSelection.SqlServer);
+            var result = await produtoController.Delete(existingId, databaseSelection);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(OkObjectResult));
@@ -289,11 +291,11 @@ namespace tester {
             // Arrange
             var nonExistingId = Guid.NewGuid();
 
-            mockDatabaseService.Setup(svc => svc.GetById(nonExistingId, DatabaseSelection.SqlServer))
+            mockDatabaseService.Setup(svc => svc.GetById(nonExistingId, databaseSelection))
                               .ReturnsAsync((Produto)null);
 
             // Act
-            var result = await produtoController.Delete(nonExistingId, DatabaseSelection.SqlServer);
+            var result = await produtoController.Delete(nonExistingId, databaseSelection);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
@@ -306,7 +308,7 @@ namespace tester {
 
             // Act
             try {
-                var result = await produtoController.Delete(Guid.Parse(invalidId), DatabaseSelection.SqlServer);
+                var result = await produtoController.Delete(Guid.Parse(invalidId), databaseSelection);
                 Assert.Fail("Expected FormatException");
             }
             catch (Exception exception) {
